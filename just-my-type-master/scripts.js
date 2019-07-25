@@ -17,11 +17,6 @@ $(document).ready(function () {
         totalWords += WordCount(s);
     }
 
-    // pushes yellow block to the right
-    let $yBlock = $('#yellow-block');
-    $yBlock.css('margin-left', '110px');
-    let startingMargin = 110, mBuffer = 20;
-
     // game vars
     let gameover = true;
     let letterCount = 0,
@@ -60,13 +55,13 @@ $(document).ready(function () {
         if (!gameover) {
             let $key = $('#' + e.keyCode);
 
-            // visuals (highlighting)
+            // visuals (highlighting keys)
             $key.css('background-color', 'yellow');
             setTimeout(function () { // delay the unhighlight
                 $key.css('background-color', 'rgb(245, 245, 245)');
             }, 200);
 
-            // game logic
+            // mistake feedback (checks and x's)
             if (String.fromCharCode(e.keyCode) == sentences[sentenceCount].charAt(letterCount)) {
                 $feedback.append('<span class="glyphicon glyphicon-ok"></span>');
             } else {
@@ -74,11 +69,9 @@ $(document).ready(function () {
                 $feedback.append('<span class="glyphicon glyphicon-remove"></span>');
             }
 
-            // add letter pressed and shift yellow block
-            let newM = startingMargin + mBuffer;
-            mBuffer += 18;
-            $yBlock.css('margin-left', newM + 'px');
+            // add letter pressed and highlight next letter
             letterCount++;
+            HighlightLetter(letterCount);
 
             // set new sentence when completing last
             if (letterCount >= sentences[sentenceCount].length) {
@@ -110,8 +103,7 @@ $(document).ready(function () {
 
     function resetSentence() {
         letterCount = 0;
-        mBuffer = 0;
-        $yBlock.css('margin-left', '110px');
+
         $feedback.text("");
         $targetLetter.text("");
     }
@@ -123,12 +115,30 @@ $(document).ready(function () {
         mistakeCount = 0;
         $senDiv.text(sentences[0]); // add first sentence
         $targetLetter.text(sentences[0].charAt(0));
+        HighlightLetter(0); // highlight first letter
         gameOver = false;
         $newGameB.hide();
     }
 
     function WordCount(str) { 
         return str.split(" ").length;
+    }
+
+
+    // highlight individual char in html
+    function HighlightLetter(lCount) {
+        let $l = $('#sentence');
+        let text = $l.text();
+
+        var letter = text.charAt(lCount);
+        var newText = setCharAt(text, lCount,'<span class="yellowHL">'+ letter +'</span>');
+        console.log(newText);
+        $l.html(newText);
+    }
+
+    function setCharAt(str,index,chr) {
+        if(index > str.length-1) return str;
+        return str.substr(0,index) + chr + str.substr(index+1);
     }
 
 });
